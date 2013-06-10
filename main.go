@@ -18,6 +18,8 @@ var (
 	GOPATH      []string
 	GOROOT      string
 	mainPackage string
+
+	undo = flag.Bool("undo", false, "remove all traces of gogetdeps from this project")
 )
 
 func main() {
@@ -74,6 +76,11 @@ func main() {
 
 	if mainPackage == "" {
 		flag.Usage()
+	}
+
+	err = os.RemoveAll(filepath.Join(TheGOPATH, mainPackage, "external"))
+	if err != nil {
+		log.Fatalf("Error removing old package cache: %v", err)
 	}
 
 	wg.Add(1)

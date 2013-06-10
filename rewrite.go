@@ -11,6 +11,10 @@ import (
 )
 
 func RewritePath(in string) string {
+	if *undo {
+		return strings.TrimPrefix(in, mainPackage)
+	}
+
 	if dir, err := os.Open(filepath.Join(GOROOT, in)); err == nil {
 		// Don't do anything to GOROOT packages.
 		dir.Close()
@@ -28,11 +32,11 @@ func Rewrite(pkg string, files []string) {
 	outpkg := RewritePath(pkg)
 	outpath := filepath.Join(TheGOPATH, outpkg)
 	if outpkg != pkg {
-		err := os.RemoveAll(outpath)
-		if err != nil {
-			log.Fatalf("Error removing old package cache for %q: %v", pkg, err)
+		if *undo {
+			return
 		}
-		err = os.MkdirAll(outpath, 0755)
+
+		err := os.MkdirAll(outpath, 0755)
 		if err != nil {
 			log.Fatalf("Error making directory for package cache for %q: err", pkg, err)
 		}

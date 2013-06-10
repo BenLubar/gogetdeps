@@ -15,7 +15,10 @@ func Process(pkg string) {
 		return
 	}
 
-	if !*undo && strings.HasPrefix(pkg, mainPackage+"/external/") {
+	if strings.HasPrefix(pkg, mainPackage+"/external/") {
+		if *undo {
+			return
+		}
 		wg.Add(1)
 		Process(pkg[len(mainPackage+"/external/"):])
 		return

@@ -12,7 +12,7 @@ import (
 
 func RewritePath(in string) string {
 	if *undo {
-		return strings.TrimPrefix(in, mainPackage)
+		return strings.TrimPrefix(in, mainPackage + "/external/")
 	}
 
 	if dir, err := os.Open(filepath.Join(GOROOT, in)); err == nil {

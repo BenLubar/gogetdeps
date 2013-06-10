@@ -1,9 +1,9 @@
 package main
 
 import (
-	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func Process(pkg string) {
@@ -15,7 +15,17 @@ func Process(pkg string) {
 		return
 	}
 
-	_ = Find(pkg)
+	if strings.HasPrefix(pkg, mainPackage+"/external/") {
+		wg.Add(1)
+		Process(pkg[len(mainPackage+"/external/"):])
+		return
+	}
 
-	log.Print(pkg)
+	files := Find(pkg)
+	if files == nil {
+		// already processed
+		return
+	}
+
+	Rewrite(pkg, files)
 }

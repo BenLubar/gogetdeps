@@ -8,11 +8,13 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"sync"
 )
 
 var (
 	wg          sync.WaitGroup
+	TheGOPATH   string
 	GOPATH      []string
 	GOROOT      string
 	mainPackage string
@@ -61,8 +63,9 @@ func main() {
 			log.Fatalf("Error cleaning GOPATH %q: %v", p, err)
 		}
 		GOPATH[i] = filepath.Join(GOPATH[i], "src")
-		if filepath.HasPrefix(wd, GOPATH[i]) {
-			mainPackage, err = filepath.Rel(GOPATH[i], wd)
+		if strings.HasPrefix(wd, GOPATH[i]) {
+			TheGOPATH = GOPATH[i]
+			mainPackage, err = filepath.Rel(TheGOPATH, wd)
 			if err != nil {
 				log.Panicf("relpath failed: %v", err)
 			}
@@ -73,6 +76,7 @@ func main() {
 		flag.Usage()
 	}
 
-	Find(mainPackage)
+	wg.Add(1)
+	Process(mainPackage)
 	wg.Wait()
 }

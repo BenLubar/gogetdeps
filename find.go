@@ -56,7 +56,8 @@ func Find(base string) (found []string) {
 						log.Fatalf("Error parsing file %q: %v", name, err)
 					}
 					for _, i := range ast.Imports {
-						log.Print(i.Path.Value[1 : len(i.Path.Value)-1])
+						wg.Add(1)
+						go Process(i.Path.Value[1 : len(i.Path.Value)-1])
 					}
 				}
 			}

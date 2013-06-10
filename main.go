@@ -7,12 +7,16 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sync"
 )
 
-var wg sync.WaitGroup
-var GOPATH []string
-var mainPackage string
+var (
+	wg          sync.WaitGroup
+	GOPATH      []string
+	GOROOT      string
+	mainPackage string
+)
 
 func main() {
 	flag.Usage = func() {
@@ -37,6 +41,15 @@ func main() {
 	wd, err = filepath.EvalSymlinks(wd)
 	if err != nil {
 		log.Panicf("pwd failed: %v", err)
+	}
+
+	GOROOT = runtime.GOROOT()
+	if !filepath.IsAbs(GOROOT) {
+		log.Fatalf("GOROOT %q i not absolute.", GOROOT)
+	}
+	GOROOT, err = filepath.EvalSymlinks(filepath.Join(GOROOT, "src", "pkg"))
+	if err != nil {
+		log.Fatalf("Error cleaning GOROOT: %v", err)
 	}
 
 	for i, p := range GOPATH {

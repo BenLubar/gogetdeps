@@ -28,6 +28,8 @@ func Find(base string) (found []string) {
 	Visited.Pkg[base] = true
 	Visited.Unlock()
 
+	allowTests := RewritePath(base) == base
+
 	found = []string{}
 
 	for _, p := range GOPATH {
@@ -48,7 +50,7 @@ func Find(base string) (found []string) {
 			if f.Mode().IsRegular() {
 				if strings.HasSuffix(f.Name(), ".c") || strings.HasSuffix(f.Name(), ".h") || strings.HasSuffix(f.Name(), ".s") {
 					found = append(found, filepath.Join(p, base, f.Name()))
-				} else if strings.HasSuffix(f.Name(), ".go") && !strings.HasSuffix(f.Name(), "_test.go") {
+				} else if strings.HasSuffix(f.Name(), ".go") && (allowTests || !strings.HasSuffix(f.Name(), "_test.go")) {
 					name := filepath.Join(p, base, f.Name())
 					found = append(found, name)
 					ast, err := parser.ParseFile(fset, name, nil, parser.ImportsOnly)
